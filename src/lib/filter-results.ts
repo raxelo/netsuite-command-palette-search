@@ -15,6 +15,9 @@ export function filterFunction(list: string[], q: string) {
     if (type === 'disabled')
       return true
 
+    if (type === 'recents')
+      return false
+
     // If the user specified an exact match ("search?exactMatch"
     // then only return exact matches
     if (exact)

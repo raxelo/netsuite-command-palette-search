@@ -71,12 +71,12 @@ function onSelectItem(entry: CommandSearchResult, ev: SelectEvent<AcceptableValu
         </CommandEmpty>
 
         <CommandGroup v-if="!search" heading="Favorites">
-          <NSCommandItem v-for="result in favoriteResults" :key="`${result.key}:fav`" :value="`${result.key}:fav`" :result="result" @select="(result, ev) => onSelectItem(result, ev)" />
+          <NSCommandItem v-for="result in favoriteResults" :key="`fav:${result.key}`" :value="`fav:${result.key}`" :result="result" @select="(result, ev) => onSelectItem(result, ev)" />
         </CommandGroup>
         <CommandSeparator />
 
         <CommandGroup heading="Recent Searches">
-          <NSCommandItem v-for="result in recentResults" :key="`${result.key}:recents`" :value="`${result.key}:recents`" :result="result" @select="(result, ev) => onSelectItem(result, ev)" />
+          <NSCommandItem v-for="result in recentResults" :key="`recents:${result.key}`" :value="`recents:${result.key}`" :result="result" @select="(result, ev) => onSelectItem(result, ev)" />
         </CommandGroup>
         <CommandSeparator />
 
