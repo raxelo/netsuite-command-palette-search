@@ -1,0 +1,49 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+#ns-command-palette {
+  z-index: 1000000;
+  position: relative;
+}
+
+@layer base {
+  #ns-command-palette {
+    --background: 0 0% 100%;
+    --foreground: 224 71.4% 4.1%;
+ 
+    --muted: 220 14.3% 95.9%;
+    --muted-foreground: 220 8.9% 46.1%;
+ 
+    --popover: 0 0% 100%;
+    --popover-foreground: 224 71.4% 4.1%;
+ 
+    --card: 0 0% 100%;
+    --card-foreground: 224 71.4% 4.1%;
+ 
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+ 
+    --primary: 220.9 39.3% 11%;
+    --primary-foreground: 210 20% 98%;
+ 
+    --secondary: 220 14.3% 95.9%;
+    --secondary-foreground: 220.9 39.3% 11%;
+ 
+    --accent: 220 14.3% 95.9%;
+    --accent-foreground: 220.9 39.3% 11%;
+ 
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 20% 98%;
+ 
+    --ring: 224 71.4% 4.1%;
+ 
+    --radius: 0.5rem;
+  }
+}
+ 
+
+#ns-command-palette input[type="text"]:not([id^="uif"]), #ns-command-palette input[type="password"], #ns-command-palette select, #ns-command-palette textarea, #ns-command-palette input[type="text"]:enabled:focus:not([id^="uif"]) {
+  border: none !important;
+  box-shadow: none !important;
+}
