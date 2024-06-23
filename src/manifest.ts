@@ -31,16 +31,10 @@ export async function getManifest() {
       128: './assets/icon-512.png',
     },
     permissions: [
-      'tabs',
-      'storage',
-      'activeTab',
     ],
-    host_permissions: ['*://*/*'],
     content_scripts: [
       {
-        matches: [
-          '<all_urls>',
-        ],
+        matches: ['https://*.app.netsuite.com/*'],
         js: [
           'dist/contentScripts/index.global.js',
         ],
@@ -49,7 +43,7 @@ export async function getManifest() {
     web_accessible_resources: [
       {
         resources: ['dist/contentScripts/style.css'],
-        matches: ['<all_urls>'],
+        matches: ['https://*.app.netsuite.com/*'],
       },
     ],
     content_security_policy: {
@@ -59,7 +53,6 @@ export async function getManifest() {
         : 'script-src \'self\'; object-src \'self\'',
     },
   }
-
 
   return manifest
 }

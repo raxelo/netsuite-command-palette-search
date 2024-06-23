@@ -1,10 +1,10 @@
 {
-  "name": "vitesse-webext",
-  "displayName": "Vitesse WebExt",
+  "name": "ns-command-palette-search",
+  "displayName": "NetSuite Command Palette Search",
   "version": "0.0.1",
   "private": true,
   "packageManager": "pnpm@8.15.4",
-  "description": "[description]",
+  "description": "Allows you to press CMD + K and open an enhanced search on NetSuite, faster and packed with more features!",
   "scripts": {
     "dev": "npm run clear && cross-env NODE_ENV=development run-p dev:*",
     "dev-firefox": "npm run clear && cross-env NODE_ENV=development EXTENSION=firefox run-p dev:*",
@@ -29,6 +29,18 @@
     "test:e2e": "playwright test",
     "postinstall": "simple-git-hooks",
     "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@tanstack/query-persist-client-core": "^5.45.0",
+    "@tanstack/vue-query": "^5.45.0",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.1.1",
+    "lucide-vue-next": "^0.396.0",
+    "postcss-prefixer": "^3.0.0",
+    "radix-vue": "^1.8.4",
+    "tailwind-merge": "^2.3.0",
+    "tailwindcss-animate": "^1.0.7",
+    "vue-command-palette": "^0.2.3"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^2.8.1",
@@ -77,17 +89,5 @@
   },
   "lint-staged": {
     "*": "eslint --fix"
-  },
-  "dependencies": {
-    "@tanstack/query-persist-client-core": "^5.45.0",
-    "@tanstack/vue-query": "^5.45.0",
-    "class-variance-authority": "^0.7.0",
-    "clsx": "^2.1.1",
-    "lucide-vue-next": "^0.396.0",
-    "postcss-prefixer": "^3.0.0",
-    "radix-vue": "^1.8.4",
-    "tailwind-merge": "^2.3.0",
-    "tailwindcss-animate": "^1.0.7",
-    "vue-command-palette": "^0.2.3"
   }
 }
