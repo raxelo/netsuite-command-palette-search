@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useMagicKeys, useToggle } from '@vueuse/core'
+import { refDebounced, useMagicKeys, useToggle } from '@vueuse/core'
 import '@/styles/index'
 import type { SelectEvent } from 'radix-vue/dist/Combobox/ComboboxItem'
 import type { AcceptableValue } from 'radix-vue/dist/shared/types'
@@ -8,7 +8,7 @@ import CommandItem from '~/components/ui/command/CommandItem.vue'
 import type { CommandSearchResult } from '~/lib/ns-search-wrapper'
 import { filterFunction } from '~/lib/filter-results'
 import NSCommandItem from '~/components/ui/netsuite-command/NSCommandItem.vue'
-import { useFavoriteResults } from '~/composables/favorite-results'
+import { useFilteredFavorites, useManageFavorites } from '~/composables/favorite-results'
 
 const { Meta_K, Ctrl_K, Ctrl, Meta, Shift } = useMagicKeys({
   passive: false,
@@ -25,13 +25,16 @@ watch([Meta_K, Ctrl_K], (v) => {
 
 const [show, toggle] = useToggle(false)
 
+const undebouncedSearch = ref('')
+const search = refDebounced(undebouncedSearch, 100)
+const { isFetching, searchTerm, results, recentResults, addResult, exactTerm } = useNetSuiteSearch(search)
+const { toggleFavorite } = useManageFavorites()
+const { filteredFavorites } = useFilteredFavorites(searchTerm)
+
 function handleOpenChange() {
+  undebouncedSearch.value = ''
   toggle()
 }
-
-const search = ref('')
-const { isFetching, searchTerm, results, recentResults, addResult } = useNetSuiteSearch(search)
-const { favoriteResults, toggleFavorite } = useFavoriteResults()
 
 function onSelectItem(entry: CommandSearchResult, ev: SelectEvent<AcceptableValue>) {
   if (Shift.value) {
@@ -56,7 +59,7 @@ function onSelectItem(entry: CommandSearchResult, ev: SelectEvent<AcceptableValu
 <template>
   <div>
     <CommandDialog v-model:searchTerm="search" v-model:open="show" :filter-function="filterFunction">
-      <CommandInput v-model="search" placeholder="Type a command or search..." />
+      <CommandInput v-model="undebouncedSearch" placeholder="Type a command or search..." />
       <CommandList>
         <CommandEmpty>
           <div v-if="!isFetching && search">
@@ -70,18 +73,18 @@ function onSelectItem(entry: CommandSearchResult, ev: SelectEvent<AcceptableValu
           </div>
         </CommandEmpty>
 
-        <CommandGroup v-if="!search" heading="Favorites">
-          <NSCommandItem v-for="result in favoriteResults" :key="`fav:${result.key}`" :value="`fav:${result.key}`" :result="result" @select="(result, ev) => onSelectItem(result, ev)" />
+        <CommandGroup heading="Favorites">
+          <NSCommandItem v-for="result in filteredFavorites" :key="`fav:${result.key}`" :exact-term-search="exactTerm" :value="`fav:${result.key}`" :result="result" @select="(result, ev) => onSelectItem(result, ev)" />
         </CommandGroup>
         <CommandSeparator />
 
         <CommandGroup heading="Recent Searches">
-          <NSCommandItem v-for="result in recentResults" :key="`recents:${result.key}`" :value="`recents:${result.key}`" :result="result" @select="(result, ev) => onSelectItem(result, ev)" />
+          <NSCommandItem v-for="result in recentResults" :key="`recents:${result.key}`" :exact-term-search="exactTerm" :value="`recents:${result.key}`" :result="result" @select="(result, ev) => onSelectItem(result, ev)" />
         </CommandGroup>
         <CommandSeparator />
 
         <CommandGroup heading="Search results">
-          <NSCommandItem v-for="result in results" :key="result.key" :value="`${result.key}`" :result="result" @select="(result, ev) => onSelectItem(result, ev)" />
+          <NSCommandItem v-for="result in results" :key="result.key" :exact-term-search="exactTerm" :value="`${result.key}`" :result="result" @select="(result, ev) => onSelectItem(result, ev)" />
         </CommandGroup>
 
         <CommandItem v-if="!isFetching && search.length && !results.length" class="nsc-group nsc-flex-col nsc-justify-start nsc-items-start nsc-text-left" value="disabled:disabled" :disabled="true">

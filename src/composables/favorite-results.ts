@@ -1,7 +1,8 @@
 import { createSharedComposable, useLocalStorage } from '@vueuse/core'
 import type { CommandSearchResult } from '~/lib/ns-search-wrapper'
+import { getFilteredItemList } from '~/lib/search-expression-utils'
 
-export const useFavoriteResults = createSharedComposable(() => {
+export const useManageFavorites = createSharedComposable(() => {
   const favorites = useLocalStorage<{ [key: string]: CommandSearchResult }>('nsc-favorites', {})
 
   const results = computed(() => {
@@ -40,3 +41,19 @@ export const useFavoriteResults = createSharedComposable(() => {
     removeFavorite,
   }
 })
+
+export function useFilteredFavorites(input: Ref<string>) {
+  const { favoriteResults } = useManageFavorites()
+
+  const filteredFavorites = computed(() => {
+    return getFilteredItemList(
+      favoriteResults.value!,
+      res => res.value.sname,
+      input.value,
+    )
+  })
+
+  return {
+    filteredFavorites,
+  }
+}

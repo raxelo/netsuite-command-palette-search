@@ -1,8 +1,8 @@
 import { useLocalStorage } from '@vueuse/core'
 import { useNSQuery } from './queries/ns-search-query'
-import { useFavoriteResults } from './favorite-results'
+import { useManageFavorites } from './favorite-results'
+import { useNetSuiteCurrentPageSearch } from './useNetSuiteCurrentPageSearch'
 import type { CommandSearchResult } from '~/lib/ns-search-wrapper'
-import { highlightText } from '~/lib/highlight-text'
 import { filterFunction } from '~/lib/filter-results'
 
 export function useNetSuiteSearch(input: Ref<string>) {
@@ -10,7 +10,12 @@ export function useNetSuiteSearch(input: Ref<string>) {
   const { isFetching, isError, data, error, dataUpdatedAt } = query
   const recentResultsStorage = useLocalStorage<{ [key: string]: CommandSearchResult & { ts: number } }>('nsc-result-storage', {}, {})
 
-  const { favoriteExists } = useFavoriteResults()
+  const { currentPageResults } = useNetSuiteCurrentPageSearch(input)
+  const { favoriteExists } = useManageFavorites()
+
+  const combinedResults = computed(() => {
+    return data.value?.autofill.concat(currentPageResults.value || [])
+  })
 
   const recentResults = computed(() => {
     return Object.entries(recentResultsStorage.value).map(([_key, entry]) => {
@@ -33,24 +38,15 @@ export function useNetSuiteSearch(input: Ref<string>) {
   }
 
   const filteredResults = computed<CommandSearchResult[]>(() => {
-    if (!data.value)
+    if (!combinedResults.value)
       return []
 
-    const allResults = data.value.autofill.map((result, idx) => {
+    const allResults = combinedResults.value.map((result, idx) => {
       return {
         key: `ns:${result.sname}-${idx}`,
-        value: {
-          ...result,
-          sname: highlightText(result.sname, exactTerm.value),
-        },
+        value: result,
       }
-    }).sort((resA, resB) => {
-      if (favoriteExists(resA.key))
-        return -1
-      if (favoriteExists(resB.key))
-        return 1
-      return 0
-    })
+    }).filter(res => !favoriteExists(res.key))
 
     const filteredKeys = filterFunction(allResults.map(result => result.key), input.value)
 
