@@ -5,22 +5,34 @@ import type { SelectEvent } from 'radix-vue/dist/Combobox/ComboboxItem'
 import type { AcceptableValue } from 'radix-vue/dist/shared/types'
 import { useNetSuiteSearch } from '~/composables/useNetSuiteSearch'
 import CommandItem from '~/components/ui/command/CommandItem.vue'
-import type { CommandSearchResult } from '~/lib/ns-search-wrapper'
 import { filterFunction } from '~/lib/filter-results'
 import NSCommandItem from '~/components/ui/netsuite-command/NSCommandItem.vue'
 import { useFilteredFavorites, useManageFavorites } from '~/composables/favorite-results'
+import type { SearchItem } from '~/lib/search-item'
 
-const { Meta_K, Ctrl_K, Ctrl, Meta, Shift } = useMagicKeys({
+const Keys = useMagicKeys({
   passive: false,
   onEventFired(e) {
-    if (e.key === 'k' && (e.metaKey || e.ctrlKey))
+    const pressed = Keys.current
+    if (!keybinding.value.length) {
+      return
+    }
+
+    if (keybinding.value.every(key => pressed.has(key))
+      && keybinding.value.length === pressed.size) {
       e.preventDefault()
+    }
   },
 })
 
-watch([Meta_K, Ctrl_K], (v) => {
-  if (v[0] || v[1])
+watch(Keys.current, (v) => {
+  if (!keybinding.value.length) {
+    return
+  }
+  if (keybinding.value.every(key => v.has(key))
+    && keybinding.value.length === v.size) {
     handleOpenChange()
+  }
 })
 
 const [show, toggle] = useToggle(false)
@@ -36,8 +48,8 @@ function handleOpenChange() {
   toggle()
 }
 
-function onSelectItem(entry: CommandSearchResult, ev: SelectEvent<AcceptableValue>) {
-  if (Shift.value) {
+function onSelectItem(entry: SearchItem, ev: SelectEvent<AcceptableValue>) {
+  if (Keys.Shift) {
     ev.stopPropagation()
     ev.preventDefault()
     toggleFavorite(entry)
@@ -46,13 +58,13 @@ function onSelectItem(entry: CommandSearchResult, ev: SelectEvent<AcceptableValu
 
   addResult(entry)
 
-  if (Meta.value || Ctrl.value) {
+  if (Keys.Meta.value || Keys.Ctrl.value) {
     // open in new tab
-    window.open(entry.value.key, '_blank')
+    window.open(entry.url, '_blank')
     return
   }
 
-  window.location.href = entry.value.key
+  window.location.href = entry.url
 }
 </script>
 
@@ -74,17 +86,17 @@ function onSelectItem(entry: CommandSearchResult, ev: SelectEvent<AcceptableValu
         </CommandEmpty>
 
         <CommandGroup heading="Favorites">
-          <NSCommandItem v-for="result in filteredFavorites" :key="`fav:${result.key}`" :exact-term-search="exactTerm" :value="`fav:${result.key}`" :result="result" @select="(result, ev) => onSelectItem(result, ev)" />
+          <NSCommandItem v-for="result in filteredFavorites" :key="`fav:${result.key}`" :exact-term="exactTerm" :search-term="searchTerm" :value="`fav:${result.key}`" :result="result" @select="(result, ev) => onSelectItem(result, ev)" />
         </CommandGroup>
         <CommandSeparator />
 
         <CommandGroup heading="Recent Searches">
-          <NSCommandItem v-for="result in recentResults" :key="`recents:${result.key}`" :exact-term-search="exactTerm" :value="`recents:${result.key}`" :result="result" @select="(result, ev) => onSelectItem(result, ev)" />
+          <NSCommandItem v-for="result in recentResults" :key="`recents:${result.key}`" :exact-term="exactTerm" :search-term="searchTerm" :value="`recents:${result.key}`" :result="result" @select="(result, ev) => onSelectItem(result, ev)" />
         </CommandGroup>
         <CommandSeparator />
 
         <CommandGroup heading="Search results">
-          <NSCommandItem v-for="result in results" :key="result.key" :exact-term-search="exactTerm" :value="`${result.key}`" :result="result" @select="(result, ev) => onSelectItem(result, ev)" />
+          <NSCommandItem v-for="result in results" :key="result.key" :exact-term="exactTerm" :search-term="searchTerm" :value="`${result.key}`" :result="result" @select="(result, ev) => onSelectItem(result, ev)" />
         </CommandGroup>
 
         <CommandItem v-if="!isFetching && search.length && !results.length" class="nsc-group nsc-flex-col nsc-justify-start nsc-items-start nsc-text-left" value="disabled:disabled" :disabled="true">
