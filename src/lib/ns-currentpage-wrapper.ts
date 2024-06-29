@@ -1,4 +1,4 @@
-import type { SuggestAPIResponse } from './ns-search-wrapper'
+import type { ItemBreadcrumb, SearchItem } from './search-item'
 
 interface CurrentPageNavigationData {
   type: string
@@ -12,49 +12,34 @@ function getCurrentPageResults(): Promise<CurrentPageNavigationData[]> {
   return fetch(`/app/center/NLNavMenuData.nl?_${new Date().getTime()}`).then(res => res.json())
 }
 
-export async function getFlatCurrentPageResults(): Promise<SuggestAPIResponse['autofill']> {
+export async function getFlatCurrentPageResults(): Promise<SearchItem[]> {
   const currentPageResults = await getCurrentPageResults()
   return currentPageResults.flatMap(res => getFlatResults(res))
-    .filter(res => !res.name.toLowerCase().includes('have been moved'))
-    .map((res) => {
-      return {
-        sname: res.name,
-        key: res.url,
-        descr: res.menu,
-        dashurl: res.url,
-        bedit: '',
-      }
-    })
 }
 
-function getFlatResults(currentPageResults: CurrentPageNavigationData, breadCrumbs = '') {
-  const results: {
-    menu: string
-    name: string
-    url: string
-  }[] = []
+const ROOT_BREADCRUMB = [{ displayName: 'Menu' }]
+
+function getFlatResults(currentPageResults: CurrentPageNavigationData, breadCrumbs: ItemBreadcrumb[] = []) {
+  const results: SearchItem[] = []
+
+  const description = breadCrumbs.map(b => b.displayName).join(' ') || 'Menu'
 
   if (currentPageResults.url) {
     results.push({
       url: currentPageResults.url,
-      menu: breadCrumbs || 'Menu',
-      name: currentPageResults.label,
+      description,
+      displayName: currentPageResults.label,
+      menuEntry: true,
+      breadCrumbs: !breadCrumbs.length ? ROOT_BREADCRUMB : breadCrumbs,
+      key: `ns:${description} ${currentPageResults.label} ${currentPageResults.url}`,
     })
   }
 
-  const childrenBreadcrumbs = !breadCrumbs
-    ? currentPageResults.label
-    : `${breadCrumbs} » ${currentPageResults.label}`
+  const nestedBreadcrumb = [{ displayName: currentPageResults.label, url: currentPageResults.url }]
+
+  const childrenBreadcrumbs: ItemBreadcrumb[] = breadCrumbs.concat(nestedBreadcrumb)
 
   currentPageResults.submenu.forEach((menuItem) => {
-    if (menuItem.url) {
-      results.push({
-        url: menuItem.url,
-        name: menuItem.label,
-        menu: childrenBreadcrumbs,
-      })
-    }
-
     results.push(...getFlatResults(menuItem, childrenBreadcrumbs))
   })
 

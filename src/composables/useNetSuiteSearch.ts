@@ -2,19 +2,19 @@ import { useLocalStorage } from '@vueuse/core'
 import { useNSQuery } from './queries/ns-search-query'
 import { useManageFavorites } from './favorite-results'
 import { useNetSuiteCurrentPageSearch } from './useNetSuiteCurrentPageSearch'
-import type { CommandSearchResult } from '~/lib/ns-search-wrapper'
 import { filterFunction } from '~/lib/filter-results'
+import type { SearchItem } from '~/lib/search-item'
 
 export function useNetSuiteSearch(input: Ref<string>) {
   const { query, exactTerm, searchTerm } = useNSQuery(input)
   const { isFetching, isError, data, error, dataUpdatedAt } = query
-  const recentResultsStorage = useLocalStorage<{ [key: string]: CommandSearchResult & { ts: number } }>('nsc-result-storage', {}, {})
+  const recentResultsStorage = useLocalStorage<{ [key: string]: SearchItem & { ts: number } }>('nsc-stored-results', {}, {})
 
-  const { currentPageResults } = useNetSuiteCurrentPageSearch(input)
+  const { currentPageResults } = useNetSuiteCurrentPageSearch(searchTerm)
   const { favoriteExists } = useManageFavorites()
 
-  const combinedResults = computed(() => {
-    return data.value?.autofill.concat(currentPageResults.value || [])
+  const SearchAndCurrentPageResults = computed<SearchItem[] | undefined>(() => {
+    return data.value?.concat(currentPageResults.value || [])
   })
 
   const recentResults = computed(() => {
@@ -25,7 +25,7 @@ export function useNetSuiteSearch(input: Ref<string>) {
       .slice(0, 10)
   })
 
-  function addResult(result: CommandSearchResult) {
+  function addResult(result: SearchItem) {
     recentResultsStorage.value[result.key] = {
       ...result,
       ts: new Date().getTime(),
@@ -37,16 +37,12 @@ export function useNetSuiteSearch(input: Ref<string>) {
     }
   }
 
-  const filteredResults = computed<CommandSearchResult[]>(() => {
-    if (!combinedResults.value)
+  const filteredResults = computed<SearchItem[]>(() => {
+    if (!SearchAndCurrentPageResults.value)
       return []
 
-    const allResults = combinedResults.value.map((result, idx) => {
-      return {
-        key: `ns:${result.sname}-${idx}`,
-        value: result,
-      }
-    }).filter(res => !favoriteExists(res.key))
+    const allResults = SearchAndCurrentPageResults.value
+      .filter(res => !favoriteExists(res.key))
 
     const filteredKeys = filterFunction(allResults.map(result => result.key), input.value)
 

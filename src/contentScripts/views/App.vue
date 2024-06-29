@@ -9,6 +9,7 @@ import { filterFunction } from '~/lib/filter-results'
 import NSCommandItem from '~/components/ui/netsuite-command/NSCommandItem.vue'
 import { useFilteredFavorites, useManageFavorites } from '~/composables/favorite-results'
 import type { SearchItem } from '~/lib/search-item'
+import { keybinding } from '~/logic/settings'
 
 const Keys = useMagicKeys({
   passive: false,
@@ -43,13 +44,16 @@ const { isFetching, searchTerm, results, recentResults, addResult, exactTerm } =
 const { toggleFavorite } = useManageFavorites()
 const { filteredFavorites } = useFilteredFavorites(searchTerm)
 
-function handleOpenChange() {
+watch(show, () => {
   undebouncedSearch.value = ''
+})
+
+function handleOpenChange() {
   toggle()
 }
 
 function onSelectItem(entry: SearchItem, ev: SelectEvent<AcceptableValue>) {
-  if (Keys.Shift) {
+  if (Keys.Shift.value) {
     ev.stopPropagation()
     ev.preventDefault()
     toggleFavorite(entry)
@@ -71,7 +75,7 @@ function onSelectItem(entry: SearchItem, ev: SelectEvent<AcceptableValue>) {
 <template>
   <div>
     <CommandDialog v-model:searchTerm="search" v-model:open="show" :filter-function="filterFunction">
-      <CommandInput v-model="undebouncedSearch" placeholder="Type a command or search..." />
+      <CommandInput v-model="undebouncedSearch" placeholder="Search" />
       <CommandList>
         <CommandEmpty>
           <div v-if="!isFetching && search">

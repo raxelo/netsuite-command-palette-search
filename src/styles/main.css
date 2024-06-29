@@ -47,3 +47,11 @@
   border: none !important;
   box-shadow: none !important;
 }
+
+.nsc-highlight-yellow {
+  background-color: yellow;
+}
+
+.nsc-highlight-bold {
+  font-weight: bold;
+}

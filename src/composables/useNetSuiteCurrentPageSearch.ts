@@ -9,9 +9,12 @@ export function useNetSuiteCurrentPageSearch(input: Ref<string>) {
   })
 
   const filteredResults = computed(() => {
+    if (!data.value)
+      return []
+
     return getFilteredItemList(
-      data.value!,
-      item => item.sname,
+      data.value,
+      item => `${item.description} ${item.displayName}`,
       input.value,
     ).slice(0, 20)
   })

@@ -36,7 +36,7 @@ const PortalTarget = ref()
       v-bind="forwarded"
       :class="
         cn(
-          'nsc-content nsc-fixed nsc-left-1/2 nsc-top-[150px] -nsc-translate-x-1/2 nsc-z-50 nsc-grid nsc-w-full nsc-max-w-xl nsc-gap-4 nsc-border nsc-bg-background nsc-shadow-lg nsc-duration-20 sm:nsc-rounded-lg',
+          'nsc-content nsc-fixed nsc-left-1/2 nsc-top-[150px] -nsc-translate-x-1/2 nsc-z-50 nsc-grid nsc-w-full nsc-max-w-2xl nsc-gap-4 nsc-border nsc-bg-background nsc-shadow-lg nsc-duration-20 sm:nsc-rounded-lg',
           props.class,
         )"
     >

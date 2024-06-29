@@ -1,8 +1,8 @@
-function normalizeString(str: string) {
+export function normalizeString(str: string) {
   return str.replace(/[^\w\s]/g, '').toLowerCase()
 }
 
-function getSearchableResults<T>(item: T, name: (item: T) => string) {
+export function getSearchableResults<T>(item: T, name: (item: T) => string) {
   const normalized = normalizeString(name(item) as string)
   const terms = normalized.split(' ').filter(term => term)
   return { ...item, normalized, terms }

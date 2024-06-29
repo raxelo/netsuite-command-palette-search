@@ -2,20 +2,24 @@
 import { Star } from 'lucide-vue-next'
 import type { SelectEvent } from 'radix-vue/dist/Combobox/ComboboxItem'
 import type { AcceptableValue } from 'radix-vue/dist/shared/types'
-import { useFavoriteResults } from '~/composables/favorite-results'
-import type { CommandSearchResult } from '~/lib/ns-search-wrapper'
+import { useManageFavorites } from '~/composables/favorite-results'
+import { highlightExactQuery } from '~/lib/highlight-text'
+import type { SearchItem } from '~/lib/search-item'
 import { cn } from '~/lib/utils'
+import { showMenuBadges } from '~/logic/settings'
 
 const props = defineProps<{
-  result: CommandSearchResult
+  result: SearchItem
   value: string
+  exactTerm: string
+  searchTerm: string
 }>()
 
 const emits = defineEmits<{
-  select: [result: CommandSearchResult, event: SelectEvent<AcceptableValue>]
+  select: [result: SearchItem, event: SelectEvent<AcceptableValue>]
 }>()
 
-const { addFavorite, favoriteExists, removeFavorite } = useFavoriteResults()
+const { addFavorite, favoriteExists, removeFavorite } = useManageFavorites()
 
 const isFavorite = computed(() => {
   return favoriteExists(props.result.key)
@@ -24,11 +28,24 @@ const isFavorite = computed(() => {
 
 <template>
   <CommandItem class="nsc-group nsc-relative nsc-flex-col nsc-justify-start nsc-items-start nsc-text-left" :value="value" @select="(ev) => emits('select', result, ev)">
-    <div>
-      <span class="nsc-whitespace-pre">{{ result.value.descr }}: </span> <span class="nsc-font-bold" v-html="result.value.sname" />
+    <div v-if="!result.menuEntry || !showMenuBadges">
+      <span class="nsc-inline-block nsc-mr-1" v-html="highlightExactQuery(`${result.description}:`, exactTerm)" />
+      <span class="nsc-font-bold" v-html="highlightExactQuery(result.displayName, exactTerm)" />
     </div>
-    <div class="group-data-[highlighted]:nsc-block nsc-opacity-75 nsc-hidden nsc-text-xs insc-font-mono nsc-mt-0.5">
-      {{ result.value.key }}
+    <div v-else>
+      <div v-if="result.breadCrumbs?.length" class="nsc-bg-[#607799] nsc-inline-flex nsc-mr-2 nsc-rounded-sm nsc-text-white nsc-overflow-hidden">
+        <a v-for="(crumb, idx) in result.breadCrumbs" :key="idx" class="nsc-px-1.5 first:nsc-pl-2.5 nsc-relative last:nsc-pr-2.5 nsc-py-0.5 nsc-transition-all hover:nsc-bg-black hover:nsc-bg-opacity-40 " :href="crumb.url || result.url">
+          {{ crumb.displayName }}
+        </a>
+      </div>
+
+      <span v-if="!result.breadCrumbs?.length">
+        <span class="nsc-inline-block nsc-mr-1" v-html="highlightExactQuery(result.description, exactTerm)" />
+      </span>
+      <span class="nsc-font-bold" v-html="highlightExactQuery(result.displayName, exactTerm)" />
+    </div>
+    <div class="nsc-opacity-65 nsc-text-[11px] insc-font-mono">
+      {{ result.url }}
     </div>
     <div
       :class="cn(

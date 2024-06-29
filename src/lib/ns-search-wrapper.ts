@@ -1,17 +1,8 @@
+import type { SearchItem } from './search-item'
+
 const SEARCH_URL = '/app/common/autosuggest.nl'
 
-export interface CommandSearchResult {
-  key: string
-  value: {
-    sname: string
-    key: string
-    descr: string
-    dashurl: string
-    bedit: string
-  }
-}
-
-export interface SuggestAPIResponse {
+interface SuggestAPIResponse {
   circid: string
   asuuk: string
   asheep: string
@@ -24,14 +15,20 @@ export interface SuggestAPIResponse {
   }[]
 }
 
-export function performSearch(term: string): Promise<SuggestAPIResponse> {
+export async function performSearch(term: string): Promise<SearchItem[]> {
   const params = new URLSearchParams({
     cur_val: term,
     mapkey: 'uberautosuggest',
     circid: '2',
   })
 
-  const response = fetch(`${SEARCH_URL}?${params.toString()}`).then(res => res.json())
+  const response = await fetch(`${SEARCH_URL}?${params.toString()}`).then(res => res.json()) as SuggestAPIResponse
 
-  return response
+  return response.autofill.map(el => ({
+    displayName: el.sname,
+    description: el.descr,
+    menuEntry: false,
+    url: el.key,
+    key: `ns:${el.descr} ${el.sname} ${el.key}`,
+  }))
 }
