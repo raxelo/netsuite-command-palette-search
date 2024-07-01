@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { refDebounced, useMagicKeys, useToggle } from '@vueuse/core'
+import { refDebounced, useBrowserLocation, useMagicKeys, useToggle } from '@vueuse/core'
 import '@/styles/index'
 import type { SelectEvent } from 'radix-vue/dist/Combobox/ComboboxItem'
 import type { AcceptableValue } from 'radix-vue/dist/shared/types'
@@ -11,6 +11,12 @@ import NSCommandItem from '~/components/ui/netsuite-command/NSCommandItem.vue'
 import { useFilteredFavorites, useManageFavorites } from '~/composables/favorite-results'
 import type { SearchItem } from '~/lib/search-item'
 import { currentTabUrl, keybinding } from '~/logic/settings'
+
+const browserUrl = useBrowserLocation()
+
+onMounted(() => {
+  currentTabUrl.value = browserUrl.value.href
+})
 
 const Keys = useMagicKeys({
   passive: false,

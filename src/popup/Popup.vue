@@ -45,6 +45,11 @@ async function addCurrentToFavorites() {
   window.close()
 }
 
+onMounted(async () => {
+  const url: string = await sendMessage('GET_CURRENT_URL', null, 'background')
+  currentTabUrl.value = url
+})
+
 const isInNetSuite = computed(() => {
   return currentTabUrl.value.includes('app.netsuite.com')
 })
