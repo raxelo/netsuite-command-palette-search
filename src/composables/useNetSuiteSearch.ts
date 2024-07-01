@@ -14,7 +14,7 @@ export function useNetSuiteSearch(input: Ref<string>) {
   const { favoriteExists } = useManageFavorites()
 
   const SearchAndCurrentPageResults = computed<SearchItem[] | undefined>(() => {
-    return data.value?.concat(currentPageResults.value || [])
+    return currentPageResults.value?.concat(data.value || [])
   })
 
   const recentResults = computed(() => {

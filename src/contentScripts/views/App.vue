@@ -3,37 +3,35 @@ import { refDebounced, useMagicKeys, useToggle } from '@vueuse/core'
 import '@/styles/index'
 import type { SelectEvent } from 'radix-vue/dist/Combobox/ComboboxItem'
 import type { AcceptableValue } from 'radix-vue/dist/shared/types'
+import { onMessage } from 'webext-bridge/content-script'
 import { useNetSuiteSearch } from '~/composables/useNetSuiteSearch'
 import CommandItem from '~/components/ui/command/CommandItem.vue'
 import { filterFunction } from '~/lib/filter-results'
 import NSCommandItem from '~/components/ui/netsuite-command/NSCommandItem.vue'
 import { useFilteredFavorites, useManageFavorites } from '~/composables/favorite-results'
 import type { SearchItem } from '~/lib/search-item'
-import { keybinding } from '~/logic/settings'
+import { currentTabUrl, keybinding } from '~/logic/settings'
 
 const Keys = useMagicKeys({
   passive: false,
   onEventFired(e) {
     const pressed = Keys.current
-    if (!keybinding.value.length) {
+    if (!keybinding.value.length)
       return
-    }
 
     if (keybinding.value.every(key => pressed.has(key))
-      && keybinding.value.length === pressed.size) {
+      && keybinding.value.length === pressed.size)
       e.preventDefault()
-    }
   },
 })
 
 watch(Keys.current, (v) => {
-  if (!keybinding.value.length) {
+  if (!keybinding.value.length)
     return
-  }
+
   if (keybinding.value.every(key => v.has(key))
-    && keybinding.value.length === v.size) {
+    && keybinding.value.length === v.size)
     handleOpenChange()
-  }
 })
 
 const [show, toggle] = useToggle(false)
@@ -41,7 +39,7 @@ const [show, toggle] = useToggle(false)
 const undebouncedSearch = ref('')
 const search = refDebounced(undebouncedSearch, 100)
 const { isFetching, searchTerm, results, recentResults, addResult, exactTerm } = useNetSuiteSearch(search)
-const { toggleFavorite } = useManageFavorites()
+const { toggleFavorite, addFavorite } = useManageFavorites()
 const { filteredFavorites } = useFilteredFavorites(searchTerm)
 
 watch(show, () => {
@@ -53,7 +51,7 @@ function handleOpenChange() {
 }
 
 function onSelectItem(entry: SearchItem, ev: SelectEvent<AcceptableValue>) {
-  if (Keys.Shift.value) {
+  if (Keys.current.has('shift')) {
     ev.stopPropagation()
     ev.preventDefault()
     toggleFavorite(entry)
@@ -62,7 +60,7 @@ function onSelectItem(entry: SearchItem, ev: SelectEvent<AcceptableValue>) {
 
   addResult(entry)
 
-  if (Keys.Meta.value || Keys.Ctrl.value) {
+  if (Keys.current.has('ctrl') || Keys.current.has('meta')) {
     // open in new tab
     window.open(entry.url, '_blank')
     return
@@ -70,12 +68,36 @@ function onSelectItem(entry: SearchItem, ev: SelectEvent<AcceptableValue>) {
 
   window.location.href = entry.url
 }
+
+const lastFavoriteAddedTs = ref()
+onMessage('ADD_PAGE_TO_FAVORITES', async ({ data }: { data: { pageTitle: string } }) => {
+  if (!currentTabUrl.value?.includes('app.netsuite.com'))
+    return
+
+  const title = data.pageTitle || document.title
+
+  lastFavoriteAddedTs.value = new Date().getTime()
+
+  const entry: SearchItem = {
+    displayName: title,
+    addedAt: lastFavoriteAddedTs.value,
+    url: currentTabUrl.value,
+    menuEntry: false,
+    description: 'Favorite',
+    key: `ns:Favorite ${title} ${currentTabUrl.value}`,
+  }
+
+  addFavorite(entry)
+
+  undebouncedSearch.value = ''
+  show.value = true
+})
 </script>
 
 <template>
   <div>
     <CommandDialog v-model:searchTerm="search" v-model:open="show" :filter-function="filterFunction">
-      <CommandInput v-model="undebouncedSearch" placeholder="Search" />
+      <CommandInput :key="lastFavoriteAddedTs" v-model="undebouncedSearch" placeholder="Search" />
       <CommandList>
         <CommandEmpty>
           <div v-if="!isFetching && search">

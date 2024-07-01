@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/vue-query'
 import { getFlatCurrentPageResults } from '~/lib/ns-currentpage-wrapper'
 import { getFilteredItemList } from '~/lib/search-expression-utils'
+import type { SearchItem } from '~/lib/search-item'
 
 export function useNetSuiteCurrentPageSearch(input: Ref<string>) {
   const { data } = useQuery({
@@ -8,7 +9,7 @@ export function useNetSuiteCurrentPageSearch(input: Ref<string>) {
     queryFn: getFlatCurrentPageResults,
   })
 
-  const filteredResults = computed(() => {
+  const filteredResults = computed<SearchItem[]>(() => {
     if (!data.value)
       return []
 

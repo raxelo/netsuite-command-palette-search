@@ -30,7 +30,7 @@
     --secondary: 220 14.3% 95.9%;
     --secondary-foreground: 220.9 39.3% 11%;
  
-    --accent: 220 14.3% 95.9%;
+    --accent: 220 13% 91%; 
     --accent-foreground: 220.9 39.3% 11%;
  
     --destructive: 0 84.2% 60.2%;
@@ -39,6 +39,11 @@
     --ring: 224 71.4% 4.1%;
  
     --radius: 0.5rem;
+
+    --color-ring-blue: rgba(29, 78, 216, 0.5);
+    --color-ring-white: rgba(255, 255, 255, 1);
+    --color-bg-blue: rgba(191, 219, 254, 1);
+    --color-bg-transparent: rgba(191, 219, 254, 0);
   }
 }
  
@@ -54,4 +59,27 @@
 
 .nsc-highlight-bold {
   font-weight: bold;
+}
+
+@keyframes flash {
+  0%, 25% {
+    background-color: var(--color-bg-blue);
+    box-shadow: 0 0 0 4px var(--color-ring-blue);
+  }
+  25%, 50% {
+    background-color: var(--color-bg-transparent);
+    box-shadow: 0 0 0 4px var(--color-ring-white);
+  }
+  50%, 75% {
+    background-color: var(--color-bg-blue);
+    box-shadow: 0 0 0 4px var(--color-ring-blue);
+  }
+  75%, 100% {
+    background-color: var(--color-bg-transparent);
+    box-shadow: 0 0 0 4px var(--color-ring-white);
+  }
+}
+
+.animate-favorite-item {
+  animation: flash 2000ms ease-in-out;
 }

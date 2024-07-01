@@ -4,6 +4,7 @@ export interface SearchItem {
   menuEntry: boolean
   url: string
   key: string
+  addedAt?: number
   breadCrumbs?: ItemBreadcrumb[]
 }
 
