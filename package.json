@@ -1,7 +1,7 @@
 {
   "name": "ns-command-palette-search",
   "displayName": "NetSuite Command Palette Search",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "private": true,
   "packageManager": "pnpm@8.15.4",
   "description": "Allows you to press CMD + K and open an enhanced search on NetSuite, faster and packed with more features!",
