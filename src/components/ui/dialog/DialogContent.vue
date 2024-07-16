@@ -27,18 +27,17 @@ const PortalTarget = ref()
 </script>
 
 <template>
-  <div ref="PortalTarget" />
+  <div
+    ref="PortalTarget"
+    class="nsc-z-[100000] nsc-absolute nsc-top-0 nsc-left-0 nsc-w-screen nsc-h-screen nsc-flex nsc-items-center nsc-justify-center"
+  />
   <DialogPortal :to="PortalTarget">
-    <DialogOverlay
-      class="nsc-fixed nsc-inset-0 nsc-z-50 nsc-bg-black/60"
-    />
+    <DialogOverlay class="nsc-fixed nsc-inset-0 nsc-z-50 nsc-bg-black/60" />
     <DialogContent
-      v-bind="forwarded"
-      :class="
-        cn(
-          'nsc-content nsc-fixed nsc-left-1/2 nsc-top-[150px] -nsc-translate-x-1/2 nsc-z-50 nsc-grid nsc-w-full nsc-max-w-2xl nsc-gap-4 nsc-border nsc-bg-background nsc-shadow-lg nsc-duration-20 sm:nsc-rounded-lg',
-          props.class,
-        )"
+      v-bind="forwarded" :class="cn(
+        'nsc-fixed nsc-top-[150px] nsc-z-50 nsc-grid nsc-w-full nsc-max-w-2xl nsc-gap-4 nsc-border nsc-bg-background nsc-shadow-lg nsc-duration-20 sm:nsc-rounded-lg',
+        props.class,
+      )"
     >
       <slot />
 
@@ -51,13 +50,3 @@ const PortalTarget = ref()
     </DialogContent>
   </DialogPortal>
 </template>
-
-<style>
-.nsc-content {
-  -webkit-font-smoothing: subpixel-antialiased;
-  -webkit-filter: blur(0px);
-  -webkit-perspective: 1000;
-  filter: blur(0px);
-  backface-visibility: hidden;
-}
-</style>
