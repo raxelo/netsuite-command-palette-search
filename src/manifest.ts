@@ -48,6 +48,10 @@ export async function getManifest() {
         resources: ['dist/contentScripts/style.css'],
         matches: ['https://*.app.netsuite.com/*'],
       },
+      {
+        resources: ['dist/inject/inject.js'],
+        matches: ['https://*.app.netsuite.com/*'],
+      },
     ],
     content_security_policy: {
       extension_pages: isDev

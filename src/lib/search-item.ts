@@ -6,6 +6,8 @@ export interface SearchItem {
   key: string
   addedAt?: number
   breadCrumbs?: ItemBreadcrumb[]
+  behavior?: 'action' | 'none'
+  type?: 'form'
 }
 
 export interface ItemBreadcrumb {

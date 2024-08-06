@@ -2,19 +2,29 @@ import { useLocalStorage } from '@vueuse/core'
 import { useNSQuery } from './queries/ns-search-query'
 import { useManageFavorites } from './favorite-results'
 import { useNetSuiteCurrentPageSearch } from './useNetSuiteCurrentPageSearch'
+import { useFormActions } from './useFormActions'
 import { filterFunction } from '~/lib/filter-results'
 import type { SearchItem } from '~/lib/search-item'
 
 export function useNetSuiteSearch(input: Ref<string>) {
   const { query, exactTerm, searchTerm } = useNSQuery(input)
-  const { isFetching, isError, data, error, dataUpdatedAt } = query
+  const { isFetching, isError, data: searchQueryResults, error, dataUpdatedAt } = query
   const recentResultsStorage = useLocalStorage<{ [key: string]: SearchItem & { ts: number } }>('nsc-stored-results', {}, {})
 
   const { currentPageResults } = useNetSuiteCurrentPageSearch(searchTerm)
   const { favoriteExists } = useManageFavorites()
+  const { formActions } = useFormActions(input)
 
-  const SearchAndCurrentPageResults = computed<SearchItem[] | undefined>(() => {
-    return currentPageResults.value?.concat(data.value || [])
+  const SearchAndCurrentPageResults = computed<SearchItem[]>(() => {
+    const sources = [
+      currentPageResults.value || [],
+      searchQueryResults.value || [],
+      formActions.value || [],
+    ]
+
+    console.log(formActions.value)
+
+    return sources.flat()
   })
 
   const recentResults = computed(() => {
@@ -26,6 +36,8 @@ export function useNetSuiteSearch(input: Ref<string>) {
   })
 
   function addResult(result: SearchItem) {
+    if (result.behavior === 'action')
+      return
     recentResultsStorage.value[result.key] = {
       ...result,
       ts: new Date().getTime(),

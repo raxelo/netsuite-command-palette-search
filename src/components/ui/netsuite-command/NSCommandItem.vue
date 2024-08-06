@@ -29,6 +29,12 @@ const { addFavorite, favoriteExists, removeFavorite } = useManageFavorites()
 const isFavorite = computed(() => {
   return favoriteExists(props.result.key)
 })
+
+const isAction = computed(() => props.result.behavior === 'action')
+
+const detailText = computed(() => {
+  return props.result.url
+})
 </script>
 
 <template>
@@ -61,9 +67,10 @@ const isFavorite = computed(() => {
       <span class="nsc-font-bold" v-html="highlightExactQuery(result.displayName, exactTerm)" />
     </div>
     <div class="nsc-opacity-65 nsc-text-[11px] insc-font-mono">
-      {{ result.url }}
+      {{ detailText }}
     </div>
     <div
+      v-if="!isAction"
       :class="cn(
         'nsc-top-0 group-data-[highlighted]:nsc-flex nsc-h-full nsc-flex-col nsc-items-center nsc-justify-center nsc-absolute nsc-right-4',
         !isFavorite ? 'nsc-hidden' : 'nsc-flex',

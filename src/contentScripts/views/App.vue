@@ -11,6 +11,7 @@ import NSCommandItem from '~/components/ui/netsuite-command/NSCommandItem.vue'
 import { useFilteredFavorites, useManageFavorites } from '~/composables/favorite-results'
 import type { SearchItem } from '~/lib/search-item'
 import { currentTabUrl, keybinding } from '~/logic/settings'
+import { handleFormAction } from '~/lib/form/ns-form-actions'
 
 const browserUrl = useBrowserLocation()
 
@@ -56,7 +57,17 @@ function handleOpenChange() {
   toggle()
 }
 
+function handleAction(entry: SearchItem) {
+  if (entry.type === 'form')
+    handleFormAction(entry)
+}
+
 function onSelectItem(entry: SearchItem, ev: SelectEvent<AcceptableValue>) {
+  if (entry.behavior === 'action') {
+    handleAction(entry)
+    return
+  }
+
   if (Keys.current.has('shift')) {
     ev.stopPropagation()
     ev.preventDefault()
