@@ -23,15 +23,14 @@ const pressedKeys = computed(() => {
 const assigningKey = ref(false)
 
 watch(Keys.current, (val) => {
-  if (assigningKey.value) {
+  if (assigningKey.value)
     lastPressed.value = [...val.values()]
-  } else {
+  else
     lastPressed.value = []
-  }
 })
 
 watch(lastPressedDebounced.last, (val) => {
-  if (!val?.snapshot?.length) {
+  if (!val?.snapshot?.length && assigningKey.value) {
     assigningKey.value = false
     keybinding.value = lastPressedDebounced.history.value.at(1)?.snapshot
   }
@@ -59,8 +58,10 @@ const isInNetSuite = computed(() => {
 </script>
 
 <template>
-  <main v-if="isInNetSuite" id="ns-command-palette"
-    class="nsc-text-base nsc-flex nsc-flex-col nsc-items-start nsc-w-[300px] nsc-px-4 nsc-py-5 nsc-text-center nsc-text-gray-700">
+  <main
+    v-if="isInNetSuite" id="ns-command-palette"
+    class="nsc-text-base nsc-flex nsc-flex-col nsc-items-start nsc-w-[300px] nsc-px-4 nsc-py-5 nsc-text-center nsc-text-gray-700"
+  >
     <h1 class="nsc-text-2xl">
       Settings
     </h1>
@@ -69,7 +70,8 @@ const isInNetSuite = computed(() => {
       <div class="nsc-flex nsc-gap-3">
         <span>Keybinding</span>
         <span
-          class="nsc-font-mono nsc-bg-gray-200 nsc-text-gray-800 nsc-px-3 nsc-font-bold nsc-uppercase nsc-rounded-full">
+          class="nsc-font-mono nsc-bg-gray-200 nsc-text-gray-800 nsc-px-3 nsc-font-bold nsc-uppercase nsc-rounded-full"
+        >
           {{ keybinding?.join(' + ') }}
         </span>
       </div>
@@ -86,8 +88,10 @@ const isInNetSuite = computed(() => {
     <div class="nsc-mt-4 nsc-flex nsc-flex-col nsc-items-start nsc-gap-2">
       <div class="nsc-flex nsc-gap-3">
         <div class="flex items-center mb-4">
-          <input id="show-enhanced-badges" v-model="showMenuBadges" type="checkbox"
-            class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+          <input
+            id="show-enhanced-badges" v-model="showMenuBadges" type="checkbox"
+            class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+          >
           <label for="show-enhanced-badges" class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">Show
             enhanced menu badges</label>
         </div>
