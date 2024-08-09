@@ -30,6 +30,9 @@ onMessage('open-field', ({ data }) => {
 })
 
 function highlightField(element: HTMLElement) {
+  element.scrollIntoView({
+    behavior: 'instant',
+  })
   element.animate(
     [
       {
