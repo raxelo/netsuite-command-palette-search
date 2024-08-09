@@ -25,12 +25,36 @@ onMessage('open-field', ({ data }) => {
     if (!el.length)
       return
 
-    const htmlEl = el[0]
-    htmlEl.style.setProperty('outline', 'blue 3px solid', 'important')
-
-    setTimeout(() => {
-      htmlEl.style.setProperty('outline', 'none')
-    }, 1000)
+    highlightField(el[0])
   }, 50)
 })
 
+function highlightField(element: HTMLElement) {
+  element.animate(
+    [
+      {
+        outline: 'blue 3px solid',
+        background: '#bcd9ff',
+        borderRadius: '4px',
+      },
+      {
+        outline: '#00000000 3px solid',
+        background: '#00000000',
+        borderRadius: '4px',
+      },
+      {
+        outline: 'blue 3px solid',
+        background: '#bcd9ff',
+        borderRadius: '4px',
+      },
+      {
+        outline: '#00000000 3px solid',
+        background: '#00000000',
+        borderRadius: '4px',
+      },
+    ],
+    {
+      duration: 2000,
+    },
+  )
+}
