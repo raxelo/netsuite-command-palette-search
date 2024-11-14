@@ -5,6 +5,9 @@ module.exports = {
   darkMode: ['class'],
   safelist: ['dark'],
   prefix: 'nsc-',
+  corePlugins: {
+    preflight: false,
+  },
   important: true,
   content: [
     './pages/**/*.{ts,tsx,vue}',
@@ -58,7 +61,7 @@ module.exports = {
         },
       },
       borderRadius: {
-      	xl: 'calc(var(--radius) + 4px)',
+        xl: 'calc(var(--radius) + 4px)',
         lg: 'var(--radius)',
         md: 'calc(var(--radius) - 2px)',
         sm: 'calc(var(--radius) - 4px)',
